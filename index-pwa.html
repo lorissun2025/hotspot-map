@@ -7,13 +7,222 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>🗺️ 热点地图 - HotSpot Map</title>
-  
+
   <!-- Favicon Emoji -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🗺️</text></svg>">
-  
+
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="css/styles.css">
+
+  <style>
+    /* PWA 安装横幅样式 */
+    .install-banner {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10000;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 16px 24px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      animation: slideUp 0.5s ease-out;
+      max-width: 90%;
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateX(-50%) translateY(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .install-banner:hover {
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    }
+
+    .install-banner-icon {
+      font-size: 32px;
+    }
+
+    .install-banner-text {
+      flex: 1;
+    }
+
+    .install-banner-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .install-banner-desc {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .install-banner-button {
+      background: white;
+      color: #667eea;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .install-banner-button:hover {
+      background: #f0f0f0;
+      transform: scale(1.05);
+    }
+
+    .install-banner-close {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .install-banner-close:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    /* iOS 安装模态框样式 */
+    .ios-install-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10001;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .ios-modal-content {
+      background: white;
+      border-radius: 16px;
+      padding: 32px;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .ios-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 16px;
+    }
+
+    .ios-modal-header h2 {
+      margin: 0;
+      color: #333;
+      font-size: 20px;
+    }
+
+    .ios-modal-close {
+      background: #f5f5f5;
+      border: none;
+      color: #999;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .ios-modal-close:hover {
+      background: #e0e0e0;
+      color: #666;
+    }
+
+    .ios-modal-body {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .ios-step {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .ios-step-number {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #667eea;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .ios-step-content {
+      flex: 1;
+    }
+
+    .ios-step-icon {
+      font-size: 24px;
+      margin-right: 8px;
+    }
+
+    .ios-step-text {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .ios-step-arrow {
+      color: #999;
+      font-size: 20px;
+    }
+
+    .ios-step:last-child .ios-step-arrow {
+      display: none;
+    }
+
+    .ios-step:last-child .ios-step-text {
+      color: #667eea;
+      font-weight: 600;
+    }
+  </style>
 </head>
 <body>
   <div class="app-container">
@@ -59,7 +268,7 @@
           <button class="quick-filter" onclick="quickFilter('food')">🍜 美食探店</button>
           <button class="quick-filter" onclick="quickFilter('tourism')">🏝 旅游打卡</button>
           <button class="quick-filter" onclick="quickFilter('event')">🎪 漫展活动</button>
-          <button class="quick-filter" onclick="quickFilter('social')">📰 社交热点</button>
+          <button class="quick-filter" onclick="quickFilter('social')">💬 社交热点</button>
         </div>
       </div>
 
@@ -81,8 +290,8 @@
           </div>
           <div class="checkbox-item">
             <input type="checkbox" id="plat-bilibili" checked onchange="filterByPlatform('bilibili', this.checked)">
-            <label for="plat-bilibili">📺️ B站</label>
-          </div>
+              <label for="plat-bilibili">📺️ B站</label>
+            </div>
         </div>
       </div>
 
@@ -147,25 +356,15 @@
     </div>
   </div>
 
-  <!-- Leaflet JS -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
   <!-- Logger (必须在其他脚本之前加载) -->
-  <script src="js/utils/logger.js?v=1.5"></script>
+  <script src="js/utils/logger.js?nocache=1"></script>
 
-  <!-- App Scripts (带版本号强制刷新) -->
-  <script src="js/utils/cache.js?v=1.5"></script>  <!-- 新增：缓存工具 -->
-  <script src="js/data/hotspots.js?v=1.5"></script>
-  <script src="js/data/api-fallback.js?v=1.5"></script>
-  <script src="js/utils/influence.js?v=1.5"></script>
-  <script src="js/utils/geo.js?v=1.5"></script>
-  <script src="js/utils/dedup.js?v=1.5"></script>
-  <script src="js/utils/geolocation.js?v=1.5"></script>
-  <script src="js/components/map.js?v=1.5"></script>
-  <script src="js/components/popup.js?v=1.5"></script>
-  <script src="js/components/legend.js?v=1.5"></script>
-  <script src="js/components/filter.js?v=1.5"></script>
-  <script src="js/components/stats.js?v=1.5"></script>
-  <script src="js/app.js?v=1.5"></script>
+  <!-- PWA & Data (新增，集成版本) -->
+  <script src="js/idb.js?nocache=1"></script>
+  <script src="js/data/sync.js?nocache=1"></script>
+  <script src="sw.js?nocache=1"></script>
+
+  <!-- App Scripts (集成版本) -->
+  <script src="js/app-integrated.js?nocache=1"></script>
 </body>
 </html>
